@@ -63,16 +63,21 @@ func converter() {
 		if srcfile_path == "" {
 			return
 		}
+		dstfile_path := strings.ReplaceAll(srcfile_path, source, dest)
+		extpos := strings.LastIndex(dstfile_path, ".")
+		dstfile_path = dstfile_path[:extpos] + ".jpg" //拡張子固定
+
+		if checkFile(dstfile_path) {
+			continue
+		}
+
 		srcfile, err := os.Open(srcfile_path)
 		if err != nil {
 			fmt.Println("Error: File could not be opened")
 			continue
 		}
 
-		dstfile_path := strings.ReplaceAll(srcfile_path, source, dest)
-		extpos := strings.LastIndex(dstfile_path, ".")
-		dstfile_path = dstfile_path[:extpos] + ".jpg" //拡張子固定
-		os.MkdirAll(filepath.Dir(dstfile_path), 755)  //ディレクトリ作成
+		os.MkdirAll(filepath.Dir(dstfile_path), 755) //ディレクトリ作成
 
 		dst, err := os.Create(dstfile_path)
 		if err != nil {
@@ -102,6 +107,14 @@ func pop() string {
 	str := imagepath[lastindex-1]
 	imagepath = imagepath[:lastindex-1]
 	return str
+}
+
+func checkFile(filename string) bool {
+	_, err := os.Stat(filename)
+	if !os.IsNotExist(err) {
+		return true
+	}
+	return false
 }
 
 func resize(img image.Image, s int) image.Image {
